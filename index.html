@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pong Vertigo - KBS Tech Empire</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            touch-action: manipulation;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            overflow: hidden;
+            position: relative;
+            padding: 15px;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, transparent 20%, #0f0c29 20%, #0f0c29 80%, transparent 80%, transparent);
+            background-size: 50px 50px;
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        /* Main Menu Styles */
+        #mainMenu {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.5s ease;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+
+        .logo {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: linear-gradient(to bottom, #00c9ff, #92fe9d);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 15px rgba(0, 201, 255, 0.3);
+            position: relative;
+            display: inline-block;
+        }
+
+        .logo::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(to right, #00c9ff, #92fe9d);
+            border-radius: 2px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            margin-bottom: 20px;
+        }
+
+        .copyright {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-top: 10px;
+        }
+
+        .menu-buttons {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(45deg, #00c9ff, #92fe9d);
+            color: #0f0c29;
+            font-weight: bold;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 201, 255, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn.online {
+            background: linear-gradient(45deg, #ff00cc, #ff9900);
+        }
+
+        .btn.how-to-play {
+            background: linear-gradient(45deg, #8E2DE2, #4A00E0);
+        }
+
+        .btn.back {
+            background: linear-gradient(45deg, #f85032, #e73827);
+            margin-top: 20px;
+        }
+
+        .options-panel {
+            width: 100%;
+            max-width: 400px;
+            background: rgba(16, 18, 37, 0.7);
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .panel-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #00c9ff;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+        }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+        }
+
+        .difficulty-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .diff-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .diff-btn.active {
+            background: linear-gradient(45deg, #00c9ff, #92fe9d);
+            color: #0f0c29;
+        }
+
+        /* Game Page Styles */
+        #gamePage {
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            margin-bottom: 10px;
+            width: 100%;
+        }
+
+        .score-board {
+            display: flex;
+            gap: 25px;
+        }
+
+        .score {
+            text-align: center;
+        }
+
+        .player-name {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .score-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00c9ff;
+        }
+
+        .game-container {
+            position: relative;
+            width: 100%;
+            flex: 1;
+            min-height: 70vh;
+            background: rgba(10, 12, 25, 0.8);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            touch-action: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        #gameCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .game-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px 40px;
+            border-radius: 15px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-align: center;
+            z-index: 10;
+            display: none;
+        }
+
+        /* How to Play Page */
+        #howToPlayPage {
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            overflow-y: auto;
+            padding-bottom: 20px;
+        }
+
+        .instructions-container {
+            background: rgba(16, 18, 37, 0.7);
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .instructions-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #00c9ff;
+        }
+
+        .instructions-content {
+            line-height: 1.6;
+        }
+
+        .instructions-content h3 {
+            margin: 20px 0 10px;
+            color: #92fe9d;
+        }
+
+        .instructions-content ul {
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .instructions-content li {
+            margin-bottom: 8px;
+        }
+
+        /* Game controls */
+        .game-controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .control-btn {
+            flex: 1;
+            max-width: 150px;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(45deg, #8E2DE2, #4A00E0);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(142, 45, 226, 0.4);
+        }
+
+        .control-btn:active {
+            transform: translateY(1px);
+        }
+
+        .control-btn.restart {
+            background: linear-gradient(45deg, #ff9900, #ff3300);
+        }
+
+        /* Connection status */
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(16, 18, 37, 0.9);
+            border-radius: 10px;
+            padding: 10px 15px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 100;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-connected {
+            background-color: #00ff00;
+            box-shadow: 0 0 10px #00ff00;
+        }
+
+        .status-disconnected {
+            background-color: #ff0000;
+        }
+
+        .status-connecting {
+            background-color: #ffff00;
+            box-shadow: 0 0 10px #ffff00;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        /* Online room info */
+        .room-info {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(16, 18, 37, 0.9);
+            border-radius: 10px;
+            padding: 10px 15px;
+            font-size: 0.9rem;
+            z-index: 100;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 250px;
+        }
+
+        .room-code {
+            font-weight: bold;
+            color: #00c9ff;
+            margin-top: 5px;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        /* Hosting info */
+        .hosting-info {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(16, 18, 37, 0.7);
+            border-radius: 10px;
+            padding: 10px 15px;
+            font-size: 0.8rem;
+            opacity: 0.7;
+            z-index: 100;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 250px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2.5rem;
+            }
+            
+            .btn {
+                padding: 16px;
+                font-size: 1.1rem;
+            }
+            
+            .control-btn {
+                padding: 10px;
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 2rem;
+            }
+            
+            .btn {
+                padding: 14px;
+                font-size: 1rem;
+            }
+            
+            .score-value {
+                font-size: 1.7rem;
+            }
+            
+            .player-name {
+                font-size: 0.9rem;
+            }
+            
+            .game-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .control-btn {
+                max-width: 100%;
+                width: 100%;
+            }
+        }
+        
+        /* Game controls hint */
+        .controls-hint {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            opacity: 0.7;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Connection Status Indicator -->
+        <div id="connectionStatus" class="connection-status" style="display: none;">
+            <span class="status-indicator status-disconnected"></span>
+            <span id="statusText">Disconnected</span>
+        </div>
+        
+        <!-- Room Info -->
+        <div id="roomInfo" class="room-info" style="display: none;">
+            <div>Room Code:</div>
+            <div id="roomCodeDisplay" class="room-code">ABCDEF</div>
+            <div style="margin-top: 5px; font-size: 0.8rem;">Share this code with your opponent</div>
+        </div>
+        
+
+        <!-- Hosting Info -->
+        <!--<div class="hosting-info">
+            <i class="fas fa-server"></i> Hosted on Free Platform
+        </div> 
+-->
+        
+        <!-- Main Menu Page -->
+        <div id="mainMenu">
+            <header>
+                <div class="logo">PONG VERTIGO</div>
+                <div class="subtitle">Touch & Drag to Play - Enhanced Edition</div>
+            </header>
+            
+            <div class="menu-buttons">
+                <button class="btn" onclick="showGameOptions('local')">
+                    <i class="fas fa-users"></i> Local Multiplayer
+                </button>
+                <button class="btn" onclick="showGameOptions('ai')">
+                    <i class="fas fa-robot"></i> Player vs AI
+                </button>
+                <button class="btn online" onclick="showGameOptions('online')">
+                    <i class="fas fa-globe"></i> Online Play
+                </button>
+                <button class="btn how-to-play" onclick="showHowToPlay()">
+                    <i class="fas fa-question-circle"></i> How to Play
+                </button>
+            </div>
+            <div class="copyright">© 2025 KBS Tech Empire, Ghana. All rights reserved.</div>
+            <div id="gameOptions" class="options-panel" style="display: none;">
+                <div class="panel-title" id="optionsTitle">Game Options</div>
+                
+                <div id="localOptions" style="display: none;">
+                    <div class="input-group">
+                        <label for="localPlayer1">Player 1 Name (Top)</label>
+                        <input type="text" id="localPlayer1" placeholder="Enter name" value="Player 1">
+                    </div>
+                    <div class="input-group">
+                        <label for="localPlayer2">Player 2 Name (Bottom)</label>
+                        <input type="text" id="localPlayer2" placeholder="Enter name" value="Player 2">
+                    </div>
+                    <button class="btn" onclick="startGame('local')">Start Local Game</button>
+                </div>
+                
+                <div id="aiOptions" style="display: none;">
+                    <div class="input-group">
+                        <label for="aiPlayerName">Your Name</label>
+                        <input type="text" id="aiPlayerName" placeholder="Enter name" value="Player">
+                    </div>
+                    <div class="input-group">
+                        <label>Difficulty Level</label>
+                        <div class="difficulty-buttons">
+                            <button class="diff-btn" data-level="easy" onclick="setDifficulty('easy')">Easy</button>
+                            <button class="diff-btn active" data-level="medium" onclick="setDifficulty('medium')">Medium</button>
+                            <button class="diff-btn" data-level="hard" onclick="setDifficulty('hard')">Hard</button>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="startGame('ai')">Start vs AI</button>
+                </div>
+                
+                <div id="onlineOptions" style="display: none;">
+                    <div class="input-group">
+                        <label for="onlinePlayerName">Your Name</label>
+                        <input type="text" id="onlinePlayerName" placeholder="Enter name" value="Player">
+                    </div>
+                    <div class="input-group">
+                        <label for="gameCode">Room Code</label>
+                        <input type="text" id="gameCode" placeholder="Enter code to connect">
+                    </div>
+                    <button class="btn" onclick="connectToGame()">Connect to Game</button>
+                    <div style="margin-top: 15px; text-align: center; font-size: 0.9rem; opacity: 0.8;">
+                        <i class="fas fa-info-circle"></i> Share this code with a friend to play together
+                    </div>
+                </div>
+                
+                <button class="btn back" onclick="hideOptions()">
+                    <i class="fas fa-arrow-left"></i> Back to Main Menu
+                </button>
+            </div>
+        </div>
+        
+        <!-- Game Page -->
+        <div id="gamePage">
+            <div class="game-header">
+                <div class="logo" style="font-size: 1.5rem;">PONG VERTIGO</div>
+                <div class="score-board">
+                    <div class="score">
+                        <div class="player-name" id="p1Name">PLAYER 1</div>
+                        <div id="player1Score" class="score-value">0</div>
+                    </div>
+                    <div class="score">
+                        <div class="player-name" id="p2Name">PLAYER 2</div>
+                        <div id="player2Score" class="score-value">0</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="game-container">
+                <canvas id="gameCanvas"></canvas>
+                <div id="gameMessage" class="game-message"></div>
+            </div>
+            
+            <div class="controls-hint">
+                Drag your finger on your side of the screen to move your paddle
+            </div>
+            
+            <div class="game-controls">
+                <button id="pauseButton" class="control-btn" onclick="togglePause()">
+                    <i class="fas fa-pause"></i> Pause
+                </button>
+                <button class="control-btn restart" onclick="restartGame()">
+                    <i class="fas fa-redo"></i> Restart
+                </button>
+                <button class="btn back" onclick="backToMenu()">
+                    <i class="fas fa-arrow-left"></i> Menu
+                </button>
+            </div>
+        </div>
+        
+        <!-- How to Play Page -->
+        <div id="howToPlayPage">
+            <header>
+                <div class="logo">HOW TO PLAY</div>
+            </header>
+            
+            <div class="instructions-container">
+                <div class="instructions-title">Game Instructions</div>
+                
+                <div class="instructions-content">
+                    <h3>Objective</h3>
+                    <p>Score points by getting the ball past your opponent's paddle. The first player to reach 7 points wins the game.</p>
+                    
+                    <h3>Controls</h3>
+                    <p>Drag your finger anywhere on your side of the screen to move your paddle:</p>
+                    <ul>
+                        <li>Top Player: Drag anywhere on the top half of the screen</li>
+                        <li>Bottom Player: Drag anywhere on the bottom half of the screen</li>
+                    </ul>
+                    <p>The game automatically detects which player is controlling based on touch position.</p>
+                    
+                    <h3>Game Modes</h3>
+                    <ul>
+                        <li><strong>Local Multiplayer</strong>: Play against a friend on the same device</li>
+                        <li><strong>Player vs AI</strong>: Play against the computer at different difficulty levels</li>
+                        <li><strong>Online Play</strong>: Play against a friend online using a shared room code</li>
+                    </ul>
+                    
+                    <h3>Enhanced Features</h3>
+                    <ul>
+                        <li>Larger playing field for better gameplay</li>
+                        <li>Visual effects when the ball is hit</li>
+                        <li>Smooth touch controls optimized for mobile</li>
+                        <li>Dynamic ball physics with increasing speed</li>
+                        <li>Online multiplayer with WebSocket connection</li>
+                        <li>Pause/play and restart functionality</li>
+                    </ul>
+                    
+                    <h3>Tips</h3>
+                    <ul>
+                        <li>Try to anticipate where the ball will go</li>
+                        <li>Position your paddle in the center when waiting</li>
+                        <li>Against the AI, watch for patterns in its movement</li>
+                        <li>Use quick swipes for faster paddle movements</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <button class="btn back" onclick="backToMenu()" style="margin-top: 20px;">
+                <i class="fas fa-arrow-left"></i> Back to Main Menu
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Game variables
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const gameMessage = document.getElementById('gameMessage');
+        const player1ScoreElem = document.getElementById('player1Score');
+        const player2ScoreElem = document.getElementById('player2Score');
+        const pauseButton = document.getElementById('pauseButton');
+        const connectionStatus = document.getElementById('connectionStatus');
+        const statusText = document.getElementById('statusText');
+        const roomInfo = document.getElementById('roomInfo');
+        const roomCodeDisplay = document.getElementById('roomCodeDisplay');
+        
+        // Set canvas dimensions
+        function setCanvasSize() {
+            const container = document.querySelector('.game-container');
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            
+            // Ensure minimum dimensions
+            if (canvas.width < 300) canvas.width = 300;
+            if (canvas.height < 500) canvas.height = 500;
+        }
+        
+        // Game objects - Portrait mode (top and bottom paddles)
+        const paddleWidth = 120;
+        const paddleHeight = 15;
+        const ballRadius = 12;
+        
+        let player1 = { // Bottom paddle (HUMAN PLAYER in AI mode)
+            x: 0,
+            y: 0,
+            width: paddleWidth,
+            height: paddleHeight,
+            dx: 0,
+            speed: 8,
+            score: 0
+        };
+        
+        let player2 = { // Top paddle (AI PLAYER in AI mode)
+            x: 0,
+            y: 0,
+            width: paddleWidth,
+            height: paddleHeight,
+            dx: 0,
+            speed: 8,
+            score: 0
+        };
+        
+        let ball = {
+            x: 0,
+            y: 0,
+            radius: ballRadius,
+            dx: 0,
+            dy: 5,
+            speed: 5
+        };
+        
+        // Ball hit effects
+        let hitEffects = [];
+        
+        // Touch tracking
+        let topPlayerTouch = null;
+        let bottomPlayerTouch = null;
+        
+        // Game state
+        let gameRunning = false;
+        let gamePaused = false;
+        let gameMode = 'local';
+        let difficulty = 'medium';
+        
+        // WebSocket variables
+        let ws = null;
+        let roomCode = '';
+        let playerRole = ''; // 'host' or 'guest'
+        let opponentName = 'Opponent';
+        
+        // WebSocket server configuration for free hosting
+        const getWebSocketServer = () => {
+            // Use wss:// if served over https
+            if (window.location.protocol === 'https:') {
+                return 'wss://free-pong-server.glitch.me';
+            }
+            return 'ws://free-pong-server.glitch.me';
+        };
+        
+        // Page navigation functions
+        function showGameOptions(mode) {
+            gameMode = mode;
+            document.getElementById('gameOptions').style.display = 'block';
+            
+            // Hide all options
+            document.getElementById('localOptions').style.display = 'none';
+            document.getElementById('aiOptions').style.display = 'none';
+            document.getElementById('onlineOptions').style.display = 'none';
+            
+            // Show relevant options
+            if (mode === 'local') {
+                document.getElementById('localOptions').style.display = 'block';
+                document.getElementById('optionsTitle').textContent = 'Local Multiplayer';
+            } else if (mode === 'ai') {
+                document.getElementById('aiOptions').style.display = 'block';
+                document.getElementById('optionsTitle').textContent = 'Player vs AI';
+            } else if (mode === 'online') {
+                document.getElementById('onlineOptions').style.display = 'block';
+                document.getElementById('optionsTitle').textContent = 'Online Play';
+            }
+        }
+        
+        function hideOptions() {
+            document.getElementById('gameOptions').style.display = 'none';
+        }
+        
+        function showHowToPlay() {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('howToPlayPage').style.display = 'flex';
+        }
+        
+        function backToMenu() {
+            document.getElementById('gamePage').style.display = 'none';
+            document.getElementById('howToPlayPage').style.display = 'none';
+            document.getElementById('mainMenu').style.display = 'flex';
+            stopGame();
+            closeWebSocket();
+        }
+        
+        function startGame(mode) {
+            gameMode = mode;
+            
+            // Set player names
+            if (mode === 'local') {
+                document.getElementById('p1Name').textContent = document.getElementById('localPlayer1').value || 'Player 1';
+                document.getElementById('p2Name').textContent = document.getElementById('localPlayer2').value || 'Player 2';
+            } else if (mode === 'ai') {
+                // Player 1 is HUMAN (bottom), Player 2 is AI (top)
+                document.getElementById('p1Name').textContent = document.getElementById('aiPlayerName').value || 'Player';
+                document.getElementById('p2Name').textContent = 'AI Opponent';
+            } else {
+                document.getElementById('p1Name').textContent = document.getElementById('onlinePlayerName').value || 'Player';
+                document.getElementById('p2Name').textContent = opponentName;
+            }
+            
+            // Switch to game page
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('gamePage').style.display = 'flex';
+            
+            // Initialize game after a small delay to allow rendering
+            setTimeout(initGame, 50);
+        }
+        
+        function connectToGame() {
+            const code = document.getElementById('gameCode').value;
+            const playerName = document.getElementById('onlinePlayerName').value || 'Player';
+            
+            // Show connecting status
+            updateConnectionStatus('connecting', 'Connecting to server...');
+            
+            // Create WebSocket connection
+            ws = new WebSocket(getWebSocketServer());
+            
+            ws.onopen = function() {
+                updateConnectionStatus('connected', 'Connected to server');
+                
+                if (code) {
+                    // Join existing room
+                    ws.send(JSON.stringify({
+                        type: 'join',
+                        room: code,
+                        name: playerName
+                    }));
+                } else {
+                    // Create new room
+                    ws.send(JSON.stringify({
+                        type: 'create',
+                        name: playerName
+                    }));
+                }
+                
+                // Show connecting message
+                gameMessage.textContent = code ? `Joining room: ${code}...` : 'Creating new room...';
+                gameMessage.style.display = 'block';
+            };
+            
+            ws.onmessage = function(event) {
+                try {
+                    const message = JSON.parse(event.data);
+                    
+                    if (message.type === 'room_created') {
+                        roomCode = message.room;
+                        playerRole = 'host';
+                        
+                        gameMessage.textContent = `Room created: ${roomCode}`;
+                        
+                        // Show room info
+                        roomCodeDisplay.textContent = roomCode;
+                        roomInfo.style.display = 'block';
+                        
+                        setTimeout(() => {
+                            gameMessage.style.display = 'none';
+                            startGame('online');
+                        }, 2000);
+                    }
+                    else if (message.type === 'room_joined') {
+                        roomCode = message.room;
+                        opponentName = message.opponent || 'Opponent';
+                        playerRole = 'guest';
+                        
+                        document.getElementById('p2Name').textContent = opponentName;
+                        
+                        gameMessage.style.display = 'none';
+                        startGame('online');
+                        
+                        // Show room info
+                        roomCodeDisplay.textContent = roomCode;
+                        roomInfo.style.display = 'block';
+                    }
+                    else if (message.type === 'state_update') {
+                        // Update opponent's paddle
+                        player2.x = message.player2X;
+                        
+                        // Update ball position
+                        ball.x = message.ballX;
+                        ball.y = message.ballY;
+                        ball.dx = message.ballDx;
+                        ball.dy = message.ballDy;
+                        
+                        // Update scores
+                        player1.score = message.player1Score;
+                        player2.score = message.player2Score;
+                        updateScores();
+                    }
+                    else if (message.type === 'game_paused') {
+                        gamePaused = true;
+                        gameMessage.textContent = 'Game Paused';
+                        gameMessage.style.display = 'block';
+                        pauseButton.innerHTML = '<i class="fas fa-play"></i> Play';
+                    }
+                    else if (message.type === 'game_resumed') {
+                        gamePaused = false;
+                        gameMessage.style.display = 'none';
+                        pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause';
+                    }
+                    else if (message.type === 'game_restarted') {
+                        restartGame();
+                    }
+                    else if (message.type === 'player_disconnected') {
+                        gameMessage.textContent = 'Opponent disconnected!';
+                        gameMessage.style.display = 'block';
+                        gameRunning = false;
+                    }
+                    else if (message.type === 'error') {
+                        gameMessage.textContent = message.message;
+                        gameMessage.style.display = 'block';
+                    }
+                } catch (e) {
+                    console.error('Error parsing message:', e);
+                }
+            };
+            
+            ws.onerror = function(error) {
+                console.error('WebSocket error:', error);
+                updateConnectionStatus('disconnected', 'Connection error');
+                gameMessage.textContent = 'Connection error. Please try again.';
+                gameMessage.style.display = 'block';
+            };
+            
+            ws.onclose = function() {
+                updateConnectionStatus('disconnected', 'Disconnected');
+                if (gameRunning) {
+                    gameMessage.textContent = 'Disconnected from server';
+                    gameMessage.style.display = 'block';
+                    gameRunning = false;
+                }
+            };
+        }
+        
+        function updateConnectionStatus(status, text) {
+            connectionStatus.style.display = 'flex';
+            statusText.textContent = text;
+            
+            // Update status indicator
+            const indicator = connectionStatus.querySelector('.status-indicator');
+            indicator.className = 'status-indicator';
+            
+            if (status === 'connected') {
+                indicator.classList.add('status-connected');
+            } else if (status === 'connecting') {
+                indicator.classList.add('status-connecting');
+            } else {
+                indicator.classList.add('status-disconnected');
+            }
+        }
+        
+        function closeWebSocket() {
+            if (ws) {
+                ws.close();
+                ws = null;
+            }
+            connectionStatus.style.display = 'none';
+            roomInfo.style.display = 'none';
+        }
+        
+        function setDifficulty(level) {
+            difficulty = level;
+            
+            // Update button states
+            document.querySelectorAll('.diff-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.level === level);
+            });
+            
+            // Adjust AI difficulty
+            switch(level) {
+                case 'easy':
+                    player2.speed = 5;
+                    break;
+                case 'medium':
+                    player2.speed = 7;
+                    break;
+                case 'hard':
+                    player2.speed = 9;
+                    break;
+            }
+        }
+        
+        // Initialize game
+        function initGame() {
+            setCanvasSize();
+            hitEffects = []; // Reset hit effects
+            
+            // Initialize positions
+            // Player 1 is now BOTTOM (HUMAN in AI mode)
+            player1.x = canvas.width / 2 - paddleWidth / 2;
+            player1.y = canvas.height - 20 - paddleHeight;
+            
+            // Player 2 is now TOP (AI in AI mode)
+            player2.x = canvas.width / 2 - paddleWidth / 2;
+            player2.y = 20;
+            
+            ball.x = canvas.width / 2;
+            ball.y = canvas.height / 2;
+            
+            // Reset scores
+            player1.score = 0;
+            player2.score = 0;
+            updateScores();
+            
+            // Set up controls
+            setupControls();
+            
+            // Set initial ball direction
+            resetBall();
+            
+            // Start game
+            gameRunning = true;
+            gamePaused = false;
+            gameMessage.style.display = 'none';
+            pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause';
+            gameLoop();
+        }
+        
+        function stopGame() {
+            gameRunning = false;
+        }
+        
+        function resetBall() {
+            ball.x = canvas.width / 2;
+            ball.y = canvas.height / 2;
+            
+            // Randomize initial direction
+            ball.dx = (Math.random() * 4 - 2); // Random between -2 and 2
+            ball.dy = (Math.random() > 0.5 ? 1 : -1) * ball.speed;
+        }
+        
+        function updateScores() {
+            player1ScoreElem.textContent = player1.score;
+            player2ScoreElem.textContent = player2.score;
+        }
+        
+        function aiMovement() {
+            // Simple AI that follows the ball
+            const paddleCenter = player2.x + player2.width / 2;
+            
+            if (paddleCenter < ball.x - 20) {
+                player2.dx = player2.speed;
+            } else if (paddleCenter > ball.x + 20) {
+                player2.dx = -player2.speed;
+            } else {
+                player2.dx = 0;
+            }
+        }
+        
+        // Add ball hit effect
+        function addHitEffect(x, y) {
+            hitEffects.push({
+                x: x,
+                y: y,
+                radius: ball.radius * 1.5,
+                opacity: 1.0,
+                color: '#ffffff'
+            });
+        }
+        
+        function update() {
+            if (!gameRunning || gamePaused) return;
+            
+            // Update hit effects
+            for (let i = hitEffects.length - 1; i >= 0; i--) {
+                hitEffects[i].radius += 1.5;
+                hitEffects[i].opacity -= 0.05;
+                
+                if (hitEffects[i].opacity <= 0) {
+                    hitEffects.splice(i, 1);
+                }
+            }
+            
+            // Move paddles
+            player1.x += player1.dx;
+            player2.x += player2.dx;
+            
+            // Boundary check for paddles
+            if (player1.x < 0) player1.x = 0;
+            if (player1.x + player1.width > canvas.width) player1.x = canvas.width - player1.width;
+            
+            if (player2.x < 0) player2.x = 0;
+            if (player2.x + player2.width > canvas.width) player2.x = canvas.width - player2.width;
+            
+            // AI movement if in AI mode (player2 is AI at top)
+            if (gameMode === 'ai') {
+                aiMovement();
+            }
+            
+            // Move ball
+            ball.x += ball.dx;
+            ball.y += ball.dy;
+            
+            // Left and right boundary check
+            if (ball.x - ball.radius < 0 || ball.x + ball.radius > canvas.width) {
+                ball.dx *= -1;
+            }
+            
+            // Paddle collision
+            // Player 2 (TOP paddle - AI in AI mode)
+            if (ball.dy < 0) {
+                if (ball.x > player2.x && ball.x < player2.x + player2.width &&
+                    ball.y - ball.radius < player2.y + player2.height) {
+                    
+                    // Calculate hit position (from -0.5 to 0.5)
+                    const hitPosition = (ball.x - (player2.x + player2.width/2)) / (player2.width/2);
+                    
+                    ball.dy = Math.abs(ball.dy) * 1.05;
+                    ball.dx = hitPosition * 8;
+                    
+                    // Add some spin effect
+                    if (player2.dx !== 0) {
+                        ball.dx += player2.dx * 0.3;
+                    }
+                    
+                    // Add hit effect
+                    addHitEffect(ball.x, ball.y);
+                    
+                    // Send ball update in online mode
+                    if (gameMode === 'online' && ws && playerRole === 'host') {
+                        sendGameState();
+                    }
+                }
+            }
+            
+            // Player 1 (BOTTOM paddle - HUMAN in AI mode)
+            if (ball.dy > 0) {
+                if (ball.x > player1.x && ball.x < player1.x + player1.width &&
+                    ball.y + ball.radius > player1.y) {
+                    
+                    // Calculate hit position (from -0.5 to 0.5)
+                    const hitPosition = (ball.x - (player1.x + player1.width/2)) / (player1.width/2);
+                    
+                    ball.dy = -Math.abs(ball.dy) * 1.05;
+                    ball.dx = hitPosition * 8;
+                    
+                    // Add some spin effect
+                    if (player1.dx !== 0) {
+                        ball.dx += player1.dx * 0.3;
+                    }
+                    
+                    // Add hit effect
+                    addHitEffect(ball.x, ball.y);
+                    
+                    // Send ball update in online mode
+                    if (gameMode === 'online' && ws && playerRole === 'host') {
+                        sendGameState();
+                    }
+                }
+            }
+            
+            // Score points
+            if (ball.y - ball.radius < 0) {
+                // Ball went off TOP - Player 1 (BOTTOM) scores
+                player1.score++;
+                updateScores();
+                checkWin();
+                resetBall();
+                
+                // Send score update in online mode
+                if (gameMode === 'online' && ws) {
+                    sendGameState();
+                }
+            } else if (ball.y + ball.radius > canvas.height) {
+                // Ball went off BOTTOM - Player 2 (TOP) scores
+                player2.score++;
+                updateScores();
+                checkWin();
+                resetBall();
+                
+                // Send score update in online mode
+                if (gameMode === 'online' && ws) {
+                    sendGameState();
+                }
+            }
+        }
+        
+        function sendGameState() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                const state = {
+                    type: 'state_update',
+                    player2X: player2.x,
+                    ballX: ball.x,
+                    ballY: ball.y,
+                    ballDx: ball.dx,
+                    ballDy: ball.dy,
+                    player1Score: player1.score,
+                    player2Score: player2.score
+                };
+                ws.send(JSON.stringify(state));
+            }
+        }
+        
+        function checkWin() {
+            if (player1.score >= 7 || player2.score >= 7) {
+                gameRunning = false;
+                gameMessage.style.display = 'block';
+                gameMessage.textContent = player1.score >= 7 ? 
+                    (gameMode === 'ai' ? 'YOU WIN!' : 
+                     (gameMode === 'online' ? 'YOU WIN!' : 'PLAYER 1 WINS!')) : 
+                    (gameMode === 'ai' ? 'AI WINS!' : 
+                     (gameMode === 'online' ? opponentName + ' WINS!' : 'PLAYER 2 WINS!'));
+                
+                setTimeout(() => {
+                    gameMessage.style.display = 'none';
+                    resetBall();
+                    player1.score = 0;
+                    player2.score = 0;
+                    updateScores();
+                    gameRunning = true;
+                }, 3000);
+            }
+        }
+        
+        function draw() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw background
+            ctx.fillStyle = 'rgba(10, 12, 25, 0.8)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw grid pattern for better depth
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            
+            // Vertical lines
+            for (let x = 0; x <= canvas.width; x += 30) {
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+            }
+            
+            // Horizontal lines
+            for (let y = 0; y <= canvas.height; y += 30) {
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+            }
+            
+            ctx.stroke();
+            
+            // Draw center line
+            ctx.beginPath();
+            ctx.setLineDash([10, 15]);
+            ctx.moveTo(0, canvas.height / 2);
+            ctx.lineTo(canvas.width, canvas.height / 2);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Draw hit effects
+            for (let i = 0; i < hitEffects.length; i++) {
+                const effect = hitEffects[i];
+                ctx.beginPath();
+                ctx.arc(effect.x, effect.y, effect.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${effect.opacity * 0.5})`;
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.arc(effect.x, effect.y, effect.radius * 1.2, 0, Math.PI * 2);
+                ctx.strokeStyle = `rgba(0, 201, 255, ${effect.opacity * 0.3})`;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+            
+            // Draw paddles with gradient
+            // Player 1 (BOTTOM - HUMAN in AI mode) - Green
+            const gradient1 = ctx.createLinearGradient(player1.x, 0, player1.x + player1.width, 0);
+            gradient1.addColorStop(0, '#92fe9d');
+            gradient1.addColorStop(1, '#00ff88');
+            ctx.fillStyle = gradient1;
+            ctx.fillRect(player1.x, player1.y, player1.width, player1.height);
+            
+            // Add paddle glow
+            ctx.shadowColor = '#92fe9d';
+            ctx.shadowBlur = 15;
+            ctx.fillRect(player1.x, player1.y, player1.width, player1.height);
+            ctx.shadowBlur = 0;
+            
+            // Player 2 (TOP - AI in AI mode) - Blue
+            const gradient2 = ctx.createLinearGradient(player2.x, 0, player2.x + player2.width, 0);
+            gradient2.addColorStop(0, '#00c9ff');
+            gradient2.addColorStop(1, '#0077ff');
+            ctx.fillStyle = gradient2;
+            ctx.fillRect(player2.x, player2.y, player2.width, player2.height);
+            
+            // Add paddle glow
+            ctx.shadowColor = '#00c9ff';
+            ctx.shadowBlur = 15;
+            ctx.fillRect(player2.x, player2.y, player2.width, player2.height);
+            ctx.shadowBlur = 0;
+            
+            // Draw ball
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            
+            // Ball gradient
+            const ballGradient = ctx.createRadialGradient(
+                ball.x - ball.radius/3, ball.y - ball.radius/3, 1,
+                ball.x, ball.y, ball.radius
+            );
+            ballGradient.addColorStop(0, '#ffffff');
+            ballGradient.addColorStop(1, '#cccccc');
+            ctx.fillStyle = ballGradient;
+            ctx.fill();
+            
+            // Add glow to ball
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius * 1.5, 0, Math.PI * 2);
+            const glowGradient = ctx.createRadialGradient(
+                ball.x, ball.y, ball.radius,
+                ball.x, ball.y, ball.radius * 2
+            );
+            glowGradient.addColorStop(0, 'rgba(255, 255, 255, 0.5)');
+            glowGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = glowGradient;
+            ctx.fill();
+            
+            // Add ball shine
+            ctx.beginPath();
+            ctx.arc(ball.x - ball.radius/3, ball.y - ball.radius/3, ball.radius/3, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.fill();
+            
+            // Draw pause overlay if game is paused
+            if (gamePaused) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.font = 'bold 40px Arial';
+                ctx.fillStyle = '#ffffff';
+                ctx.textAlign = 'center';
+                ctx.fillText('PAUSED', canvas.width / 2, canvas.height / 2);
+            }
+        }
+        
+        function gameLoop() {
+            update();
+            draw();
+            
+            if (gameRunning) {
+                requestAnimationFrame(gameLoop);
+            }
+        }
+        
+        function setupControls() {
+            // Clear previous event listeners
+            canvas.removeEventListener('touchstart', handleTouchStart);
+            canvas.removeEventListener('touchmove', handleTouchMove);
+            canvas.removeEventListener('touchend', handleTouchEnd);
+            
+            // Add new event listeners
+            canvas.addEventListener('touchstart', handleTouchStart);
+            canvas.addEventListener('touchmove', handleTouchMove);
+            canvas.addEventListener('touchend', handleTouchEnd);
+        }
+        
+        function handleTouchStart(e) {
+            e.preventDefault();
+            const touches = e.changedTouches;
+            
+            for (let i = 0; i < touches.length; i++) {
+                const touch = touches[i];
+                const touchY = touch.clientY - canvas.getBoundingClientRect().top;
+                
+                // Top half of screen - control top paddle (player2)
+                if (touchY < canvas.height / 2) {
+                    topPlayerTouch = touch.identifier;
+                    // Only set if not in AI mode (in AI mode, top is AI)
+                    if (gameMode !== 'ai') {
+                        player2.dx = 0;
+                    }
+                } 
+                // Bottom half of screen - control bottom paddle (player1)
+                else {
+                    bottomPlayerTouch = touch.identifier;
+                    player1.dx = 0;
+                }
+            }
+        }
+        
+        function handleTouchMove(e) {
+            e.preventDefault();
+            const touches = e.changedTouches;
+            
+            for (let i = 0; i < touches.length; i++) {
+                const touch = touches[i];
+                const touchX = touch.clientX - canvas.getBoundingClientRect().left;
+                
+                // Top player moving (player2)
+                if (touch.identifier === topPlayerTouch && gameMode !== 'ai') {
+                    // Move paddle to touch position
+                    player2.x = touchX - player2.width / 2;
+                    
+                    // Boundary check
+                    if (player2.x < 0) player2.x = 0;
+                    if (player2.x + player2.width > canvas.width) {
+                        player2.x = canvas.width - player2.width;
+                    }
+                    
+                    // Send paddle position in online mode
+                    if (gameMode === 'online' && ws && playerRole === 'guest') {
+                        sendGameState();
+                    }
+                }
+                // Bottom player moving (player1)
+                else if (touch.identifier === bottomPlayerTouch) {
+                    // Move paddle to touch position
+                    player1.x = touchX - player1.width / 2;
+                    
+                    // Boundary check
+                    if (player1.x < 0) player1.x = 0;
+                    if (player1.x + player1.width > canvas.width) {
+                        player1.x = canvas.width - player1.width;
+                    }
+                    
+                    // Send paddle position in online mode
+                    if (gameMode === 'online' && ws && playerRole === 'host') {
+                        sendGameState();
+                    }
+                }
+            }
+        }
+        
+        function handleTouchEnd(e) {
+            e.preventDefault();
+            const touches = e.changedTouches;
+            
+            for (let i = 0; i < touches.length; i++) {
+                const touch = touches[i];
+                
+                if (touch.identifier === topPlayerTouch) {
+                    topPlayerTouch = null;
+                    if (gameMode !== 'ai') {
+                        player2.dx = 0;
+                    }
+                } else if (touch.identifier === bottomPlayerTouch) {
+                    bottomPlayerTouch = null;
+                    player1.dx = 0;
+                }
+            }
+        }
+        
+        // Pause/Play functionality
+        function togglePause() {
+            if (!gameRunning) return;
+            
+            gamePaused = !gamePaused;
+            
+            if (gamePaused) {
+                gameMessage.textContent = 'Game Paused';
+                gameMessage.style.display = 'block';
+                pauseButton.innerHTML = '<i class="fas fa-play"></i> Play';
+                
+                // Notify opponent in online mode
+                if (gameMode === 'online' && ws) {
+                    const message = {
+                        type: 'game_paused'
+                    };
+                    ws.send(JSON.stringify(message));
+                }
+            } else {
+                gameMessage.style.display = 'none';
+                pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause';
+                
+                // Resume game loop
+                if (gameRunning) {
+                    gameLoop();
+                }
+                
+                // Notify opponent in online mode
+                if (gameMode === 'online' && ws) {
+                    const message = {
+                        type: 'game_resumed'
+                    };
+                    ws.send(JSON.stringify(message));
+                }
+            }
+        }
+        
+        // Restart game functionality
+        function restartGame() {
+            // Reset scores
+            player1.score = 0;
+            player2.score = 0;
+            updateScores();
+            
+            // Reset ball
+            resetBall();
+            
+            // Reset paddles
+            player1.x = canvas.width / 2 - paddleWidth / 2;
+            player2.x = canvas.width / 2 - paddleWidth / 2;
+            
+            // Ensure game is running
+            gameRunning = true;
+            gamePaused = false;
+            gameMessage.style.display = 'none';
+            pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause';
+            
+            // Restart game loop
+            gameLoop();
+            
+            // Notify opponent in online mode
+            if (gameMode === 'online' && ws) {
+                const message = {
+                    type: 'game_restarted'
+                };
+                ws.send(JSON.stringify(message));
+            }
+        }
+        
+        // Initialize the game
+        window.addEventListener('load', () => {
+            // Set initial canvas size
+            setCanvasSize();
+            
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                if (gameRunning) {
+                    setCanvasSize();
+                    player1.x = canvas.width / 2 - paddleWidth / 2;
+                    player2.x = canvas.width / 2 - paddleWidth / 2;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
